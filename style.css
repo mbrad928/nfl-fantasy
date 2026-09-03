@@ -73,6 +73,47 @@ main {
 }
 .section-sub { color: var(--text-muted); margin: 0 0 1.25rem; font-size: 0.92rem; }
 
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.section-head h2 { margin-bottom: 0; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+.sb-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.sb-picker select {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+}
+.refresh-btn {
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+}
+.refresh-btn:hover { background: var(--surface-2); }
+
 .table-wrap {
   overflow-x: auto;
   background: var(--surface);
@@ -112,7 +153,7 @@ tbody tr {
   margin-right: 0.5rem;
   vertical-align: middle;
 }
-.tbd-note {
+.loading-note {
   display: inline-block;
   margin-left: 0.4rem;
   font-size: 0.72rem;
@@ -122,7 +163,7 @@ tbody tr {
   border-radius: 999px;
   padding: 0.08rem 0.5rem;
 }
-.pending-star { color: #b45309; font-weight: 800; }
+.sub-note { color: var(--text-muted); font-size: 0.82rem; }
 .footnote { color: var(--text-muted); font-size: 0.84rem; margin-top: 0.75rem; }
 
 .player-cards {
@@ -162,8 +203,19 @@ tbody tr {
 .logo { width: 20px; height: 20px; object-fit: contain; }
 .logo.small { width: 16px; height: 16px; }
 .team-name { flex: 1; }
-.team-wins { font-weight: 700; }
-.team-wins.tbd { color: #b45309; font-weight: 600; font-size: 0.78rem; }
+.team-wins { font-weight: 700; width: 2.6rem; text-align: right; }
+.team-wins.loading { color: var(--text-muted); font-weight: 400; }
+
+.playoff-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+.playoff-toggle input { accent-color: var(--owner-color); cursor: pointer; }
 
 .score-breakdown {
   display: flex;

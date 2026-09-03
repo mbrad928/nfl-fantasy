@@ -24,7 +24,16 @@
 
   <main>
     <section class="section">
-      <h2>Standings</h2>
+      <div class="section-head">
+        <h2>Standings</h2>
+        <div class="controls">
+          <label class="sb-picker">
+            🏆 Super Bowl winner
+            <select id="sb-winner-select"></select>
+          </label>
+          <button class="refresh-btn" onclick="window.refreshLiveWins()">🔄 Refresh live wins</button>
+        </div>
+      </div>
       <div class="table-wrap">
         <table id="leaderboard">
           <thead>
@@ -40,15 +49,15 @@
           <tbody><!-- rendered by app.js --></tbody>
         </table>
       </div>
-      <p class="footnote">
-        <span class="pending-star">*</span> total includes only settled data —
-        rows with <span class="tbd-note">TBD</span> teams will rise once this
-        season's win totals, playoff berths, and Super Bowl result are filled in.
-      </p>
+      <p id="sync-status" class="footnote"><!-- rendered by app.js --></p>
     </section>
 
     <section class="section">
       <h2>Rosters</h2>
+      <p class="section-sub">
+        Win totals pull live from ESPN. Check a team's <strong>Playoffs</strong> box once it clinches a
+        berth — every change syncs to all of you instantly.
+      </p>
       <div id="player-cards" class="player-cards"><!-- rendered by app.js --></div>
     </section>
 
@@ -65,12 +74,13 @@
         <li><strong>+1 point</strong> for every regular-season win across all 8 of your teams.</li>
         <li><strong>+5 points</strong> for each of your teams that makes the playoffs.</li>
         <li><strong>+5 points</strong>, once, if <em>any</em> of your teams wins the Super Bowl.</li>
+        <li>Win totals refresh live from ESPN; playoff berths and the Super Bowl winner are checked off by any owner and sync to everyone in real time.</li>
       </ol>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>Last updated <span id="updated-date"></span> &middot; recreated from the league spreadsheet &middot; edit <code>data.js</code> to update scores.</p>
+    <p>Rosters are fixed at draft time in <code>data.js</code>. Win totals, playoff berths, and the Super Bowl winner sync live for everyone via Firestore — see <code>README.md</code> for one-time setup.</p>
   </footer>
 
   <script src="data.js"></script>
