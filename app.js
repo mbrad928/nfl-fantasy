@@ -43,6 +43,7 @@ const WINS_REFRESH_MS = 60 * 60 * 1000; // re-pull live win totals hourly
 const $ = (sel, el = document) => el.querySelector(sel);
 
 const playerById = Object.fromEntries(LEAGUE.players.map((p) => [p.id, p]));
+const defaultColors = Object.fromEntries(LEAGUE.players.map((p) => [p.id, p.color])); // data.js fallback, used until an owner picks their own
 const teamByAbbr = Object.fromEntries(LEAGUE.teams.map((t) => [t.abbr, t]));
 const teamsByDivision = {};
 for (const t of LEAGUE.teams) (teamsByDivision[t.division] ||= []).push(t);
@@ -58,12 +59,32 @@ let draft = { order: [], picks: [] }; // order: up to 4 owner ids (round-1 order
 let liveWins = {}; // abbr -> wins (number). Missing = not yet loaded.
 let playoffTeams = {}; // abbr -> true
 let sbWinner = null; // abbr | null
+let playerColors = {}; // ownerId -> hex color. Missing = use data.js's default. Duplicates across owners are fine — no uniqueness is enforced.
 let lastSynced = null; // ISO string | null
 let firestoreReady = false;
 
 function logoUrl(abbr) {
   return `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr.toLowerCase()}.png`;
 }
+
+// Mutates each LEAGUE.players entry's .color in place so every existing
+// `player.color` / `s.player.color` reference site picks up custom colors
+// automatically, with no need to thread a lookup through every call site.
+function applyPlayerColors() {
+  for (const p of LEAGUE.players) p.color = playerColors[p.id] || defaultColors[p.id];
+}
+
+window.setPlayerColor = function (ownerId, hex) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return; // sanity check the value came from a real color input
+  playerColors = { ...playerColors, [ownerId]: hex };
+  applyPlayerColors();
+  render();
+  if (_fs && _leagueDocRef) {
+    _fs.updateDoc(_leagueDocRef, { [`playerColors.${ownerId}`]: hex }).catch((err) =>
+      console.error("Firestore color sync failed:", err)
+    );
+  }
+};
 
 // ── Draft engine ─────────────────────────────────────────────────────────────
 function orderReady() {
@@ -365,7 +386,11 @@ function renderPlayerCards(standings) {
       return `
       <section class="player-card" style="--owner-color:${s.player.color}">
         <header>
-          <h3><span class="dot" style="background:${s.player.color}"></span>${s.player.name}</h3>
+          <h3>
+            <input type="color" class="color-picker" value="${s.player.color}" title="Change ${s.player.name}'s color"
+                   onchange="setPlayerColor('${s.player.id}', this.value)" />
+            ${s.player.name}
+          </h3>
           <span class="card-total">${s.total}<small>pts</small></span>
         </header>
         <p class="drafted-divisions">${s.teams.length ? `${s.teams.length}/${ROUNDS} teams drafted` : "No teams drafted yet"}</p>
@@ -439,6 +464,8 @@ function applyDocData(d) {
   liveWins = d.wins || {};
   playoffTeams = d.playoffTeams || {};
   sbWinner = d.sbWinner || null;
+  playerColors = d.playerColors || {};
+  applyPlayerColors();
   lastSynced = d.lastSynced || null;
 }
 
@@ -463,7 +490,7 @@ async function initFirestore() {
     if (snap.exists()) {
       applyDocData(snap.data());
     } else {
-      await _fs.setDoc(_leagueDocRef, { draft: { order: [], picks: [] }, wins: {}, playoffTeams: {}, sbWinner: null, lastSynced: null });
+      await _fs.setDoc(_leagueDocRef, { draft: { order: [], picks: [] }, wins: {}, playoffTeams: {}, sbWinner: null, playerColors: {}, lastSynced: null });
     }
     firestoreReady = true;
 

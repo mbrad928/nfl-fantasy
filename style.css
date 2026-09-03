@@ -157,6 +157,25 @@ tbody tr {
   margin-right: 0.5rem;
   vertical-align: middle;
 }
+
+/* A native <input type="color"> made to look like a clickable version of .dot */
+.color-picker {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  padding: 0;
+  margin-right: 0.5rem;
+  border: none;
+  border-radius: 50%;
+  vertical-align: middle;
+  cursor: pointer;
+  background: none;
+  overflow: hidden;
+}
+.color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+.color-picker::-webkit-color-swatch { border: none; border-radius: 50%; }
+.color-picker::-moz-color-swatch { border: none; border-radius: 50%; }
 .loading-note {
   display: inline-block;
   margin-left: 0.4rem;
