@@ -315,7 +315,7 @@ function renderLeaderboard(standings) {
     .map(
       (s, i) => `
       <tr style="--owner-color:${s.player.color}">
-        <td class="rank">${i === 0 ? "🏆" : `#${i + 1}`}</td>
+        <td class="rank">${i === 0 && s.total > 0 ? "🏆" : `#${i + 1}`}</td>
         <td class="owner-cell"><span class="dot" style="background:${s.player.color}"></span>${s.player.name}</td>
         <td>${s.winsTotal}${s.loading ? `<span class="loading-note">${s.loading} loading…</span>` : ""}</td>
         <td>${s.playoffPts} <span class="sub-note">(${s.playoffCount})</span></td>
