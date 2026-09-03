@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Division Draft Fantasy League</title>
-  <meta name="description" content="Four owners draft two NFL divisions each. Wins + playoff bonuses + a Super Bowl bonus decide the champion." />
+  <title>Snake Draft Fantasy League</title>
+  <meta name="description" content="Four owners snake-draft 8 NFL teams each, one at a time. Wins + playoff bonuses + a Super Bowl bonus decide the champion." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏈</text></svg>" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -12,12 +12,12 @@
   <header class="hero">
     <div class="hero-inner">
       <p class="eyebrow">🏈 <span id="season-year"></span> Season</p>
-      <h1>Division Draft Fantasy League</h1>
+      <h1>Snake Draft Fantasy League</h1>
       <p class="tagline">
-        Four owners each draft two full NFL divisions — 8 teams apiece.
-        Every regular-season win is a point, every team that makes the
-        playoffs is worth 5 more, and a Super Bowl win is worth a flat 5.
-        Most points wins the league.
+        Four owners snake-draft the NFL, one team at a time, until all 32 are
+        claimed — 8 teams apiece. Every regular-season win is a point, every
+        team that makes the playoffs is worth 5 more, and a Super Bowl win is
+        worth a flat 5. Most points wins the league.
       </p>
     </div>
   </header>
@@ -34,9 +34,10 @@
         </div>
       </div>
       <p class="section-sub">
-        A live snake draft — 4 owners each end up with 2 divisions (8 teams). Round 1 goes in the
-        order below; round 2 snakes back in reverse. Anyone can make the pick for whoever's on the
-        clock — every click syncs to all of you instantly.
+        A live snake draft over individual teams — 4 owners, 32 NFL teams, 8 rounds. Round 1 goes in
+        the order below; each following round snakes back in reverse. Divisions are just how the
+        board is organized for browsing — teams are drafted one at a time, not as a bundle. Anyone
+        can make the pick for whoever's on the clock — every click syncs to all of you instantly.
       </p>
       <div id="draft-status" class="draft-status"><!-- rendered by app.js --></div>
       <div id="draft-grid" class="draft-board"><!-- rendered by app.js --></div>
@@ -87,7 +88,7 @@
     <section class="section rules">
       <h2>How scoring works</h2>
       <ol>
-        <li>Each owner drafts <strong>two entire divisions</strong> (8 teams total) before the season starts.</li>
+        <li>Each owner snake-drafts <strong>8 individual NFL teams</strong>, one at a time, before the season starts.</li>
         <li><strong>+1 point</strong> for every regular-season win across all 8 of your teams.</li>
         <li><strong>+5 points</strong> for each of your teams that makes the playoffs.</li>
         <li><strong>+5 points</strong>, once, if <em>any</em> of your teams wins the Super Bowl.</li>

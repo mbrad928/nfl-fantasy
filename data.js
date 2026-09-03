@@ -1,10 +1,11 @@
 /**
  * Static league config: the 4 owners and the real NFL divisional alignment.
  *
- * Who ends up owning which divisions is NOT here — that's the outcome of a
- * live snake draft, which is shared/mutable state that lives in Firestore
- * (see app.js / README) so the draft, win totals, playoff berths, and the
- * Super Bowl winner all stay in sync across everyone's devices.
+ * Who ends up owning which teams is NOT here — that's the outcome of a live
+ * snake draft over individual teams, which is shared/mutable state that
+ * lives in Firestore (see app.js / README) so the draft, win totals,
+ * playoff berths, and the Super Bowl winner all stay in sync across
+ * everyone's devices.
  */
 
 const LEAGUE = {
@@ -17,9 +18,8 @@ const LEAGUE = {
     { id: "max", name: "Max's Team", color: "#9333ea" },
   ],
 
-  // Draft picks happen one division at a time, in this order (a snake draft
-  // picks 2 divisions per owner: round 1 forward through draft.order, round
-  // 2 reverse — see snakeOrder() in app.js).
+  // Purely a display grouping for the draft board — teams are drafted one at
+  // a time (see snakePickOrder() in app.js), not as a division-sized bundle.
   divisionOrder: [
     "AFC North", "AFC East", "AFC South", "AFC West",
     "NFC North", "NFC East", "NFC South", "NFC West",

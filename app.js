@@ -2,9 +2,11 @@
  * Renders the page from LEAGUE (data.js: players + real NFL divisions) plus
  * shared, synced state that lives in a single Firestore doc:
  *
- *   - draft: a live snake draft. 4 owners take turns picking whole divisions
- *     (4 teams each) — round 1 in `draft.order`, round 2 snakes back in
- *     reverse — until all 8 divisions (32 teams) are claimed.
+ *   - draft: a live snake draft over individual teams. 4 owners take turns
+ *     picking one NFL team at a time (32 teams total = 8 rounds) — round 1
+ *     goes in `draft.order`, even rounds snake back in reverse, odd rounds
+ *     forward again — until all 32 teams are claimed. Divisions are just how
+ *     the draft board groups teams for browsing; they aren't drafted as a unit.
  *   - Win totals: fetched live from ESPN's public NFL API, per team, and
  *     cached into Firestore so every viewer sees the latest successful
  *     fetch even before their own browser's request lands (or if it fails).
@@ -35,13 +37,18 @@ const WINS_REFRESH_MS = 60 * 60 * 1000; // re-pull live win totals hourly
 const $ = (sel, el = document) => el.querySelector(sel);
 
 const playerById = Object.fromEntries(LEAGUE.players.map((p) => [p.id, p]));
+const teamByAbbr = Object.fromEntries(LEAGUE.teams.map((t) => [t.abbr, t]));
 const teamsByDivision = {};
 for (const t of LEAGUE.teams) (teamsByDivision[t.division] ||= []).push(t);
+
+const NUM_OWNERS = LEAGUE.players.length;
+const TOTAL_PICKS = LEAGUE.teams.length; // 32
+const ROUNDS = TOTAL_PICKS / NUM_OWNERS; // 8
 
 // ── Shared state (Firestore-backed) ─────────────────────────────────────────
 let _fs = null; // { doc, getDoc, setDoc, updateDoc, onSnapshot } once loaded
 let _leagueDocRef = null;
-let draft = { order: [], picks: [] }; // order: up to 4 owner ids (round-1 order). picks: [{division, owner}, ...] in the order made.
+let draft = { order: [], picks: [] }; // order: up to 4 owner ids (round-1 order). picks: [{team, owner}, ...] in the order made, one NFL team (abbr) per pick.
 let liveWins = {}; // abbr -> wins (number). Missing = not yet loaded.
 let playoffTeams = {}; // abbr -> true
 let sbWinner = null; // abbr | null
@@ -54,11 +61,15 @@ function logoUrl(abbr) {
 
 // ── Draft engine ─────────────────────────────────────────────────────────────
 function orderReady() {
-  return (draft.order || []).length === 4;
+  return (draft.order || []).length === NUM_OWNERS;
 }
 function snakePickOrder() {
   if (!orderReady()) return [];
-  return [...draft.order, ...[...draft.order].reverse()];
+  const seq = [];
+  for (let r = 0; r < ROUNDS; r++) {
+    seq.push(...(r % 2 === 0 ? draft.order : [...draft.order].reverse()));
+  }
+  return seq;
 }
 function currentPickIndex() {
   return draft.picks.length;
@@ -68,16 +79,16 @@ function currentPickerId() {
   return currentPickIndex() < seq.length ? seq[currentPickIndex()] : null;
 }
 function draftComplete() {
-  return orderReady() && draft.picks.length >= 8;
+  return orderReady() && draft.picks.length >= TOTAL_PICKS;
 }
-function divisionOwner(divName) {
-  const pick = draft.picks.find((p) => p.division === divName);
+function teamOwner(abbr) {
+  const pick = draft.picks.find((p) => p.team === abbr);
   return pick ? pick.owner : null;
 }
 function computeTeamsByOwner() {
   const map = Object.fromEntries(LEAGUE.players.map((p) => [p.id, []]));
   for (const t of LEAGUE.teams) {
-    const owner = divisionOwner(t.division);
+    const owner = teamOwner(t.abbr);
     if (owner) map[owner].push(t);
   }
   return map;
@@ -92,7 +103,7 @@ function syncDraft() {
 window.addToDraftOrder = function (ownerId) {
   if (draft.picks.length > 0) return; // order is locked once the draft has started
   const order = draft.order || [];
-  if (order.includes(ownerId) || order.length >= 4) return;
+  if (order.includes(ownerId) || order.length >= NUM_OWNERS) return;
   draft = { ...draft, order: [...order, ownerId] };
   render();
   syncDraft();
@@ -117,10 +128,10 @@ window.clearDraftOrder = function () {
   syncDraft();
 };
 
-window.draftDivision = function (divName) {
-  if (!orderReady() || draftComplete() || divisionOwner(divName)) return;
+window.draftTeam = function (abbr) {
+  if (!orderReady() || draftComplete() || teamOwner(abbr)) return;
   const owner = currentPickerId();
-  draft = { ...draft, picks: [...draft.picks, { division: divName, owner }] };
+  draft = { ...draft, picks: [...draft.picks, { team: abbr, owner }] };
   render();
   syncDraft();
 };
@@ -237,14 +248,14 @@ function renderDraftPanel() {
           .join("")}
       </div>`;
   } else if (!complete) {
-    const round = idx < 4 ? 1 : 2;
-    const pickInRound = (idx % 4) + 1;
+    const round = Math.floor(idx / NUM_OWNERS) + 1;
+    const pickInRound = (idx % NUM_OWNERS) + 1;
     const pickerPlayer = playerById[picker];
     statusEl.innerHTML = `
       <p class="draft-msg">
         <span class="dot" style="background:${pickerPlayer.color}"></span>
         <strong>${pickerPlayer.name}</strong> is on the clock —
-        Round ${round}, Pick ${idx + 1} of 8 (pick ${pickInRound} of 4 this round)
+        Round ${round} of ${ROUNDS}, Pick ${idx + 1} of ${TOTAL_PICKS} (pick ${pickInRound} of ${NUM_OWNERS} this round)
       </p>`;
   } else {
     statusEl.innerHTML = `<p class="draft-msg draft-complete">✅ Draft complete — rosters are set for the season.</p>`;
@@ -255,42 +266,43 @@ function renderDraftPanel() {
   $("#btn-undo").disabled = draft.picks.length === 0;
   $("#btn-reset").disabled = !(draft.order || []).length && draft.picks.length === 0;
 
+  const pickerPlayer = picker ? playerById[picker] : null;
   $("#draft-grid").innerHTML = LEAGUE.divisionOrder
     .map((divName) => {
       const teams = teamsByDivision[divName] || [];
-      const ownerId = divisionOwner(divName);
-      const owner = ownerId ? playerById[ownerId] : null;
-      const canPick = started && !complete && !owner;
-      let footer;
-      if (owner) {
-        footer = `<footer><span class="dot" style="background:${owner.color}"></span>${owner.name}</footer>`;
-      } else if (canPick) {
-        const pickerPlayer = playerById[picker];
-        footer = `<button class="draft-pick-btn" style="--owner-color:${pickerPlayer.color}" onclick="draftDivision('${divName}')">Draft for ${pickerPlayer.name}</button>`;
-      } else {
-        footer = `<footer class="undrafted">Undrafted</footer>`;
-      }
+      const draftedCount = teams.filter((t) => teamOwner(t.abbr)).length;
       return `
-      <div class="division-card ${canPick ? "pickable" : ""}" style="--owner-color:${owner ? owner.color : "transparent"}">
-        <h4>${divName}</h4>
+      <div class="division-card">
+        <h4>${divName} <span class="division-progress">${draftedCount}/${teams.length}</span></h4>
         <ul>
           ${teams
-            .map(
-              (t) => `<li>
+            .map((t) => {
+              const ownerId = teamOwner(t.abbr);
+              const owner = ownerId ? playerById[ownerId] : null;
+              const canPick = started && !complete && !owner;
+              let right;
+              if (owner) {
+                right = `<span class="owner-tag" style="--owner-color:${owner.color}"><span class="dot"></span>${owner.name}</span>`;
+              } else if (canPick) {
+                right = `<button class="draft-pick-btn small" style="--owner-color:${pickerPlayer.color}" onclick="draftTeam('${t.abbr}')">Draft</button>`;
+              } else {
+                right = `<span class="undrafted-tag">—</span>`;
+              }
+              return `<li class="draft-team-row ${owner ? "owned" : ""}">
                 <img class="logo small" src="${logoUrl(t.abbr)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'" />
-                ${t.name}
-              </li>`
-            )
+                <span class="team-name">${t.name}</span>
+                ${right}
+              </li>`;
+            })
             .join("")}
         </ul>
-        ${footer}
       </div>`;
     })
     .join("");
 
   $("#draft-history").innerHTML = draft.picks.length
     ? draft.picks
-        .map((p, i) => `<li><strong>#${i + 1}</strong> ${playerById[p.owner].name} — ${p.division}</li>`)
+        .map((p, i) => `<li><strong>#${i + 1}</strong> ${playerById[p.owner].name} — ${teamByAbbr[p.team]?.name ?? p.team}</li>`)
         .join("")
     : `<li class="sub-note">No picks yet.</li>`;
 }
@@ -317,7 +329,6 @@ function renderLeaderboard(standings) {
 function renderPlayerCards(standings) {
   $("#player-cards").innerHTML = standings
     .map((s) => {
-      const divisions = [...new Set(s.teams.map((t) => t.division))];
       const teamRows = s.teams
         .map((t) => {
           const wins = liveWins[t.abbr];
@@ -342,7 +353,7 @@ function renderPlayerCards(standings) {
           <h3><span class="dot" style="background:${s.player.color}"></span>${s.player.name}</h3>
           <span class="card-total">${s.total}<small>pts</small></span>
         </header>
-        <p class="drafted-divisions">${divisions.length ? divisions.join(" &nbsp;+&nbsp; ") : "No divisions drafted yet"}</p>
+        <p class="drafted-divisions">${s.teams.length ? `${s.teams.length}/${ROUNDS} teams drafted` : "No teams drafted yet"}</p>
         ${teamRows ? `<ul class="team-list">${teamRows}</ul>` : ""}
         <dl class="score-breakdown">
           <div><dt>Wins</dt><dd>${s.winsTotal}</dd></div>
@@ -405,7 +416,11 @@ function render() {
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 function applyDocData(d) {
-  draft = d.draft && Array.isArray(d.draft.picks) ? d.draft : { order: [], picks: [] };
+  const rawDraft = d.draft && Array.isArray(d.draft.picks) ? d.draft : { order: [], picks: [] };
+  // Drop any picks from the old division-based draft schema ({division, owner})
+  // instead of the current per-team one ({team, owner}) — defensive in case the
+  // doc was created before this change.
+  draft = { order: rawDraft.order || [], picks: (rawDraft.picks || []).filter((p) => typeof p.team === "string") };
   liveWins = d.wins || {};
   playoffTeams = d.playoffTeams || {};
   sbWinner = d.sbWinner || null;

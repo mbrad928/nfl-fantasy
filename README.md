@@ -1,8 +1,8 @@
-# Division Draft Fantasy League
+# Snake Draft Fantasy League
 
 A GitHub Pages site recreating the league's Google Sheet:
 
-- Four owners (Troy, Papadoc, Ryan, Max) run a **live snake draft** right on the site — each ends up with two full NFL divisions (8 teams). Round 1 goes in a set (or randomized) order; round 2 snakes back in reverse.
+- Four owners (Troy, Papadoc, Ryan, Max) run a **live snake draft** right on the site, one NFL team at a time — 32 teams, 8 rounds, so each ends up with 8 teams. Round 1 goes in a set (or randomized) order; every following round snakes back in reverse. Divisions are just how the draft board is organized for browsing, not a unit you draft.
 - Scoring = 1 point per regular-season win + 5 points per team that makes the playoffs + 5 points (once) if any team wins the Super Bowl.
 - **Win totals** refresh live from ESPN's public NFL API, no manual entry needed.
 - **The draft itself, playoff berths,** and the **Super Bowl winner** are all shared state that syncs to everyone in real time via Firebase Firestore — same mechanic as the `lawn-care` project's shared watering log. Anyone can make the pick for whoever's currently on the clock; it's the honor system, same as everything else on this site.
@@ -38,14 +38,14 @@ Only needed for live syncing across everyone's devices. Without it, the site sti
      appId:             "...",
    };
    ```
-6. Commit and push. Open the site — drafting a division, checking a "Playoffs" box, or picking the Super Bowl winner now syncs across every device instantly.
+6. Commit and push. Open the site — drafting a team, checking a "Playoffs" box, or picking the Super Bowl winner now syncs across every device instantly.
 
 The rule above scopes read/write to `league/{season}` documents only (e.g. `league/season-2025`), matching `lawn-care`'s pattern of an open-but-scoped rule rather than locking the whole database down or requiring sign-in.
 
 ## How the data flows
 
 - **Owners and the real NFL division alignment** (`data.js`) — static. Which teams belong to which of the 8 NFL divisions doesn't depend on the fantasy draft.
-- **The draft** (`draft.order` + `draft.picks` in the shared Firestore doc) — `order` is up to 4 owner ids (round-1 order, set by clicking owners in sequence or the "Randomize order" button); `picks` is an append-only list of `{division, owner}` built one click at a time as the live draft happens. Round 2 is `order` reversed. Who owns which teams is always derived from `picks`, never stored separately.
+- **The draft** (`draft.order` + `draft.picks` in the shared Firestore doc) — `order` is up to 4 owner ids (round-1 order, set by clicking owners in sequence or the "Randomize order" button); `picks` is an append-only list of `{team, owner}` (one NFL team abbreviation per entry) built one click at a time as the live draft happens, 32 entries total. Even-indexed rounds go in `order`, odd-indexed rounds go in `order` reversed. Who owns which team is always derived from `picks`, never stored separately.
 - **Win totals** — fetched client-side from `site.api.espn.com` per team on load and every hour (or via the "Refresh live wins" button), then cached into the Firestore doc so every viewer benefits from the latest successful fetch, not just their own.
 - **Playoff berths / Super Bowl winner** — stored directly in the same Firestore doc, read on load and kept live via `onSnapshot`.
 
