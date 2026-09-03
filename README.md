@@ -40,7 +40,7 @@ Only needed for live syncing across everyone's devices. Without it, the site sti
    ```
 6. Commit and push. Open the site — drafting a team, checking a "Playoffs" box, or picking the Super Bowl winner now syncs across every device instantly.
 
-The rule above scopes read/write to `league/{season}` documents only (e.g. `league/season-2025`), matching `lawn-care`'s pattern of an open-but-scoped rule rather than locking the whole database down or requiring sign-in.
+The rule above scopes read/write to `league/{season}` documents only (e.g. `league/season-2026`), matching `lawn-care`'s pattern of an open-but-scoped rule rather than locking the whole database down or requiring sign-in.
 
 ## How the data flows
 

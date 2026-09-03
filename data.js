@@ -9,7 +9,7 @@
  */
 
 const LEAGUE = {
-  season: 2025,
+  season: 2026,
 
   players: [
     { id: "troy", name: "Troy's Team", color: "#2563eb" },
