@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Snake Draft Fantasy League</title>
-  <meta name="description" content="Four owners snake-draft 8 NFL teams each, one at a time. Wins + playoff bonuses + a Super Bowl bonus decide the champion." />
+  <meta name="description" content="Five owners snake-draft 6 NFL teams each, one at a time (2 teams go undrafted). Wins + playoff bonuses + a Super Bowl bonus decide the champion." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏈</text></svg>" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -14,10 +14,11 @@
       <p class="eyebrow">🏈 <span id="season-year"></span> Season</p>
       <h1>Snake Draft Fantasy League</h1>
       <p class="tagline">
-        Four owners snake-draft the NFL, one team at a time, until all 32 are
-        claimed — 8 teams apiece. Every regular-season win is a point, every
-        team that makes the playoffs is worth 5 more, and a Super Bowl win is
-        worth a flat 5. Most points wins the league.
+        Five owners snake-draft the NFL, one team at a time — 6 teams apiece,
+        30 of the 32 teams claimed, 2 left undrafted every season. Every
+        regular-season win is a point, every team that makes the playoffs is
+        worth 5 more, and a Super Bowl win is worth a flat 5. Most points wins
+        the league.
       </p>
     </div>
   </header>
@@ -34,10 +35,11 @@
         </div>
       </div>
       <p class="section-sub">
-        A live snake draft over individual teams — 4 owners, 32 NFL teams, 8 rounds. Round 1 goes in
-        the order below; each following round snakes back in reverse. Divisions are just how the
-        board is organized for browsing — teams are drafted one at a time, not as a bundle. Anyone
-        can make the pick for whoever's on the clock — every click syncs to all of you instantly.
+        A live snake draft over individual teams — 5 owners, 6 rounds each (30 picks; 2 of the 32 NFL
+        teams go undrafted). Round 1 goes in the order below; each following round snakes back in
+        reverse. Divisions are just how the board is organized for browsing — teams are drafted one
+        at a time, not as a bundle. Anyone can make the pick for whoever's on the clock — every click
+        syncs to all of you instantly.
       </p>
       <div id="draft-status" class="draft-status"><!-- rendered by app.js --></div>
       <div id="draft-grid" class="draft-board"><!-- rendered by app.js --></div>
@@ -88,8 +90,8 @@
     <section class="section rules">
       <h2>How scoring works</h2>
       <ol>
-        <li>Each owner snake-drafts <strong>8 individual NFL teams</strong>, one at a time, before the season starts.</li>
-        <li><strong>+1 point</strong> for every regular-season win across all 8 of your teams.</li>
+        <li>Each owner snake-drafts <strong>6 individual NFL teams</strong>, one at a time, before the season starts (2 of the 32 teams go undrafted).</li>
+        <li><strong>+1 point</strong> for every regular-season win across all 6 of your teams.</li>
         <li><strong>+5 points</strong> for each of your teams that makes the playoffs.</li>
         <li><strong>+5 points</strong>, once, if <em>any</em> of your teams wins the Super Bowl.</li>
         <li>Win totals refresh live from ESPN; playoff berths and the Super Bowl winner are checked off by any owner and sync to everyone in real time.</li>

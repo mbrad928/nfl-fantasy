@@ -1,5 +1,5 @@
 /**
- * Static league config: the 4 owners and the real NFL divisional alignment.
+ * Static league config: the 5 owners and the real NFL divisional alignment.
  *
  * Who ends up owning which teams is NOT here — that's the outcome of a live
  * snake draft over individual teams, which is shared/mutable state that
@@ -11,11 +11,17 @@
 const LEAGUE = {
   season: 2026,
 
+  // Each owner drafts this many teams (a fixed number of snake-draft rounds),
+  // not "however many teams exist" — with 5 owners x 6 teams = 30 picks out
+  // of 32 NFL teams, 2 teams are deliberately left undrafted every season.
+  roundsPerOwner: 6,
+
   players: [
     { id: "troy", name: "Troy's Team", color: "#2563eb" },
     { id: "papadoc", name: "Papadoc's Team", color: "#ea580c" },
     { id: "ryan", name: "Ryan's Team", color: "#16a34a" },
     { id: "max", name: "Max's Team", color: "#9333ea" },
+    { id: "brady", name: "Brady's Team", color: "#0d9488" },
   ],
 
   // Purely a display grouping for the draft board — teams are drafted one at

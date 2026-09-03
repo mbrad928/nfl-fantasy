@@ -2,11 +2,14 @@
  * Renders the page from LEAGUE (data.js: players + real NFL divisions) plus
  * shared, synced state that lives in a single Firestore doc:
  *
- *   - draft: a live snake draft over individual teams. 4 owners take turns
- *     picking one NFL team at a time (32 teams total = 8 rounds) — round 1
- *     goes in `draft.order`, even rounds snake back in reverse, odd rounds
- *     forward again — until all 32 teams are claimed. Divisions are just how
- *     the draft board groups teams for browsing; they aren't drafted as a unit.
+ *   - draft: a live snake draft over individual teams. Owners (LEAGUE.players)
+ *     take turns picking one NFL team at a time, LEAGUE.roundsPerOwner rounds
+ *     each — round 1 goes in `draft.order`, even rounds snake back in
+ *     reverse, odd rounds forward again. roundsPerOwner * players.length can
+ *     be less than the full 32 teams (currently 5 owners x 6 rounds = 30),
+ *     so some teams are deliberately left undrafted once the draft ends.
+ *     Divisions are just how the draft board groups teams for browsing;
+ *     they aren't drafted as a unit.
  *   - Win totals: computed from each team's ESPN schedule, counting only
  *     completed regular-season games (preseason/postseason excluded) —
  *     ESPN's aggregate "record" field ignores season-type filtering
@@ -45,8 +48,8 @@ const teamsByDivision = {};
 for (const t of LEAGUE.teams) (teamsByDivision[t.division] ||= []).push(t);
 
 const NUM_OWNERS = LEAGUE.players.length;
-const TOTAL_PICKS = LEAGUE.teams.length; // 32
-const ROUNDS = TOTAL_PICKS / NUM_OWNERS; // 8
+const ROUNDS = LEAGUE.roundsPerOwner; // teams drafted per owner
+const TOTAL_PICKS = ROUNDS * NUM_OWNERS; // may be less than LEAGUE.teams.length — leftover teams go undrafted
 
 // ── Shared state (Firestore-backed) ─────────────────────────────────────────
 let _fs = null; // { doc, getDoc, setDoc, updateDoc, onSnapshot } once loaded
