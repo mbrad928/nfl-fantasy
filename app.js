@@ -7,9 +7,11 @@
  *     goes in `draft.order`, even rounds snake back in reverse, odd rounds
  *     forward again — until all 32 teams are claimed. Divisions are just how
  *     the draft board groups teams for browsing; they aren't drafted as a unit.
- *   - Win totals: fetched live from ESPN's public NFL API, per team,
- *     regular-season only (preseason games never count), and cached into
- *     Firestore so every viewer sees the latest successful fetch even
+ *   - Win totals: computed from each team's ESPN schedule, counting only
+ *     completed regular-season games (preseason/postseason excluded) —
+ *     ESPN's aggregate "record" field ignores season-type filtering
+ *     entirely, so this counts wins itself instead of trusting it. Cached
+ *     into Firestore so every viewer sees the latest successful fetch even
  *     before their own browser's request lands (or if it fails).
  *   - Playoff berths + Super Bowl winner: not reliably available from a
  *     free live feed, so they're simple checkboxes / a dropdown that any
@@ -153,25 +155,28 @@ window.resetDraft = function () {
 };
 
 // ── Live win totals (ESPN public API) ───────────────────────────────────────
-// seasontype=2 pins this to the regular season specifically — without it,
-// ESPN's "current" record defaults to whatever season phase is presently
-// active, which around Weeks 1-4 of August/September means preseason games
-// would get counted as wins. Scoring only counts regular-season wins.
+// The team-profile endpoint's embedded team.record.items ("total") is an
+// aggregate that ignores season-type query params entirely -- confirmed
+// live: it kept showing a 3-0 preseason record even with &seasontype=2 in
+// the URL. So instead this fetches the team's full schedule and counts wins
+// itself, game by game, filtering each game by its own seasonType field
+// (seasonType.type === 2 is regular season; 1 = preseason, 3 = postseason)
+// rather than trusting any server-side filter or aggregate.
 async function fetchTeamWins(abbr) {
-  const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${abbr.toLowerCase()}?season=${LEAGUE.season}&seasontype=2`;
+  const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${abbr.toLowerCase()}/schedule?season=${LEAGUE.season}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`ESPN request failed for ${abbr}: ${res.status}`);
+  if (!res.ok) throw new Error(`ESPN schedule request failed for ${abbr}: ${res.status}`);
   const json = await res.json();
-  const items = json?.team?.record?.items || [];
-  const record = items.find((i) => i.type === "total") || items[0];
-  if (!record) return 0; // no regular-season games played yet (e.g. still preseason) — that's genuinely 0 wins, not missing data
-  const winStat = (record.stats || []).find((s) => s.name === "wins");
-  if (winStat && typeof winStat.value === "number") return winStat.value;
-  // Fallback: parse a "W-L" / "W-L-T" summary string.
-  const parsed = parseInt(String(record.summary || "").split("-")[0], 10);
-  if (!isNaN(parsed)) return parsed;
-  console.warn(`Couldn't parse regular-season wins for ${abbr}, defaulting to 0`, record);
-  return 0;
+  const events = json?.events || [];
+  let wins = 0;
+  for (const event of events) {
+    if (event.seasonType?.type !== 2) continue; // regular season only
+    const competition = event.competitions?.[0];
+    if (competition?.status?.type?.completed === false) continue; // not played yet
+    const me = competition?.competitors?.find((c) => c.team?.abbreviation === abbr.toUpperCase());
+    if (me?.winner === true) wins++;
+  }
+  return wins;
 }
 
 async function pullLiveWins() {
