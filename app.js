@@ -22,12 +22,12 @@
 
 // ── Firebase config — paste your project's values here (see README.md) ────────
 const FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
+  apiKey: "AIzaSyCJ1w0Aa4S30BEzjdFdtyKI_m_dyNnoR0s",
+  authDomain: "nfl-fantasy-ee0d6.firebaseapp.com",
+  projectId: "nfl-fantasy-ee0d6",
+  storageBucket: "nfl-fantasy-ee0d6.firebasestorage.app",
+  messagingSenderId: "835503281149",
+  appId: "1:835503281149:web:0024bf78a29bcfe6823f94",
 };
 
 const WINS_REFRESH_MS = 60 * 60 * 1000; // re-pull live win totals hourly
