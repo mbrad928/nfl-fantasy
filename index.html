@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Division Draft Fantasy League</title>
+  <meta name="description" content="Four owners draft two NFL divisions each. Wins + playoff bonuses + a Super Bowl bonus decide the champion." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏈</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">🏈 <span id="season-year"></span> Season</p>
+      <h1>Division Draft Fantasy League</h1>
+      <p class="tagline">
+        Four owners each draft two full NFL divisions — 8 teams apiece.
+        Every regular-season win is a point, every team that makes the
+        playoffs is worth 5 more, and a Super Bowl win is worth a flat 5.
+        Most points wins the league.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <h2>Standings</h2>
+      <div class="table-wrap">
+        <table id="leaderboard">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Owner</th>
+              <th>Wins</th>
+              <th>Playoff&nbsp;pts</th>
+              <th>SB&nbsp;pts</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody><!-- rendered by app.js --></tbody>
+        </table>
+      </div>
+      <p class="footnote">
+        <span class="pending-star">*</span> total includes only settled data —
+        rows with <span class="tbd-note">TBD</span> teams will rise once this
+        season's win totals, playoff berths, and Super Bowl result are filled in.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Rosters</h2>
+      <div id="player-cards" class="player-cards"><!-- rendered by app.js --></div>
+    </section>
+
+    <section class="section">
+      <h2>Draft Board</h2>
+      <p class="section-sub">All 8 NFL divisions, colored by who drafted them.</p>
+      <div id="draft-board" class="draft-board"><!-- rendered by app.js --></div>
+    </section>
+
+    <section class="section rules">
+      <h2>How scoring works</h2>
+      <ol>
+        <li>Each owner drafts <strong>two entire divisions</strong> (8 teams total) before the season starts.</li>
+        <li><strong>+1 point</strong> for every regular-season win across all 8 of your teams.</li>
+        <li><strong>+5 points</strong> for each of your teams that makes the playoffs.</li>
+        <li><strong>+5 points</strong>, once, if <em>any</em> of your teams wins the Super Bowl.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Last updated <span id="updated-date"></span> &middot; recreated from the league spreadsheet &middot; edit <code>data.js</code> to update scores.</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
