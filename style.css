@@ -113,6 +113,10 @@ main {
   cursor: pointer;
 }
 .refresh-btn:hover { background: var(--surface-2); }
+.refresh-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.refresh-btn:disabled:hover { background: var(--surface); }
+.refresh-btn.danger { color: #b3261e; border-color: rgba(179, 38, 30, 0.35); }
+.refresh-btn.danger:hover { background: rgba(179, 38, 30, 0.08); }
 
 .table-wrap {
   overflow-x: auto;
@@ -260,6 +264,56 @@ tbody tr {
   display: flex;
   align-items: center;
 }
+.division-card footer.undrafted { color: var(--text-muted); font-weight: 500; }
+.division-card.pickable {
+  border-left-color: var(--owner-color);
+  box-shadow: var(--shadow), 0 0 0 2px color-mix(in srgb, var(--owner-color) 35%, transparent);
+}
+.draft-pick-btn {
+  width: 100%;
+  margin-top: 0.6rem;
+  padding: 0.55rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--owner-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.draft-pick-btn:hover { filter: brightness(1.08); }
+
+.draft-status {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.1rem;
+}
+.draft-msg { margin: 0; font-size: 0.95rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem; }
+.draft-msg.draft-complete { color: #1a7f37; font-weight: 700; }
+
+.order-builder { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 0.85rem; }
+.order-chip {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--owner-color);
+  background: var(--surface);
+  border: 2px solid var(--owner-color);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+.order-chip:hover:not(:disabled) { background: color-mix(in srgb, var(--owner-color) 12%, transparent); }
+.order-chip:disabled { color: #fff; background: var(--owner-color); cursor: default; opacity: 0.85; }
+
+.draft-history-wrap { margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted); }
+.draft-history-wrap summary { cursor: pointer; font-weight: 600; }
+.draft-history { margin: 0.6rem 0 0; padding-left: 1.2rem; }
+.draft-history li { margin-bottom: 0.25rem; }
 
 .rules { background: var(--surface-2); border-radius: var(--radius); padding: 1.5rem 1.75rem; }
 .rules ol { margin: 0; padding-left: 1.2rem; }

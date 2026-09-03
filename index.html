@@ -25,6 +25,29 @@
   <main>
     <section class="section">
       <div class="section-head">
+        <h2>Draft</h2>
+        <div class="controls">
+          <button id="btn-randomize" class="refresh-btn" onclick="window.randomizeDraftOrder()">🎲 Randomize order</button>
+          <button id="btn-clear-order" class="refresh-btn" onclick="window.clearDraftOrder()">↺ Clear order</button>
+          <button id="btn-undo" class="refresh-btn" onclick="window.undoLastPick()">⬅ Undo last pick</button>
+          <button id="btn-reset" class="refresh-btn danger" onclick="window.resetDraft()">⟲ Reset draft</button>
+        </div>
+      </div>
+      <p class="section-sub">
+        A live snake draft — 4 owners each end up with 2 divisions (8 teams). Round 1 goes in the
+        order below; round 2 snakes back in reverse. Anyone can make the pick for whoever's on the
+        clock — every click syncs to all of you instantly.
+      </p>
+      <div id="draft-status" class="draft-status"><!-- rendered by app.js --></div>
+      <div id="draft-grid" class="draft-board"><!-- rendered by app.js --></div>
+      <details class="draft-history-wrap">
+        <summary>Pick history</summary>
+        <ol id="draft-history" class="draft-history"><!-- rendered by app.js --></ol>
+      </details>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
         <h2>Standings</h2>
         <div class="controls">
           <label class="sb-picker">
@@ -61,12 +84,6 @@
       <div id="player-cards" class="player-cards"><!-- rendered by app.js --></div>
     </section>
 
-    <section class="section">
-      <h2>Draft Board</h2>
-      <p class="section-sub">All 8 NFL divisions, colored by who drafted them.</p>
-      <div id="draft-board" class="draft-board"><!-- rendered by app.js --></div>
-    </section>
-
     <section class="section rules">
       <h2>How scoring works</h2>
       <ol>
@@ -80,7 +97,7 @@
   </main>
 
   <footer class="site-footer">
-    <p>Rosters are fixed at draft time in <code>data.js</code>. Win totals, playoff berths, and the Super Bowl winner sync live for everyone via Firestore — see <code>README.md</code> for one-time setup.</p>
+    <p>The draft, win totals, playoff berths, and the Super Bowl winner all sync live for everyone via Firestore — see <code>README.md</code> for one-time setup.</p>
   </footer>
 
   <script src="data.js"></script>

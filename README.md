@@ -2,16 +2,16 @@
 
 A GitHub Pages site recreating the league's Google Sheet:
 
-- Four owners (Troy, Papadoc, Ryan, Max) each draft **two full NFL divisions** (8 teams). Rosters are fixed once the draft happens — they live in [`data.js`](./data.js).
+- Four owners (Troy, Papadoc, Ryan, Max) run a **live snake draft** right on the site — each ends up with two full NFL divisions (8 teams). Round 1 goes in a set (or randomized) order; round 2 snakes back in reverse.
 - Scoring = 1 point per regular-season win + 5 points per team that makes the playoffs + 5 points (once) if any team wins the Super Bowl.
 - **Win totals** refresh live from ESPN's public NFL API, no manual entry needed.
-- **Playoff berths** and the **Super Bowl winner** are checked off by any of the four of you in the UI, and sync to everyone in real time via Firebase Firestore — same mechanic as the `lawn-care` project's shared watering log.
+- **The draft itself, playoff berths,** and the **Super Bowl winner** are all shared state that syncs to everyone in real time via Firebase Firestore — same mechanic as the `lawn-care` project's shared watering log. Anyone can make the pick for whoever's currently on the clock; it's the honor system, same as everything else on this site.
 
-Everything (standings table, roster cards, draft board) recomputes automatically in the browser — there's no build step and nothing to redeploy when scores change.
+Everything (draft board, standings table, roster cards) recomputes automatically in the browser — there's no build step and nothing to redeploy when the draft or scores change.
 
 ## Firebase setup (one-time)
 
-Only needed for live syncing across everyone's devices. Without it, the site still works — win totals still pull live from ESPN — but playoff/Super Bowl checkboxes stay local to your own browser instead of syncing.
+Only needed for live syncing across everyone's devices. Without it, the site still works — win totals still pull live from ESPN, and you can still run a draft — but the draft, playoff checkboxes, and Super Bowl pick stay local to your own browser instead of syncing to everyone.
 
 1. Go to [console.firebase.google.com](https://console.firebase.google.com) and create a new project (e.g. "nfl-fantasy").
 2. In the project, click **Firestore Database → Create database**. Choose **production mode** and pick a region close to you.
@@ -38,17 +38,18 @@ Only needed for live syncing across everyone's devices. Without it, the site sti
      appId:             "...",
    };
    ```
-6. Commit and push. Open the site — checking a "Playoffs" box or picking the Super Bowl winner now syncs across every device instantly.
+6. Commit and push. Open the site — drafting a division, checking a "Playoffs" box, or picking the Super Bowl winner now syncs across every device instantly.
 
 The rule above scopes read/write to `league/{season}` documents only (e.g. `league/season-2025`), matching `lawn-care`'s pattern of an open-but-scoped rule rather than locking the whole database down or requiring sign-in.
 
 ## How the data flows
 
-- **Roster** (`data.js`) — static. Who drafted which divisions/teams. Edit and push if a trade ever happens.
+- **Owners and the real NFL division alignment** (`data.js`) — static. Which teams belong to which of the 8 NFL divisions doesn't depend on the fantasy draft.
+- **The draft** (`draft.order` + `draft.picks` in the shared Firestore doc) — `order` is up to 4 owner ids (round-1 order, set by clicking owners in sequence or the "Randomize order" button); `picks` is an append-only list of `{division, owner}` built one click at a time as the live draft happens. Round 2 is `order` reversed. Who owns which teams is always derived from `picks`, never stored separately.
 - **Win totals** — fetched client-side from `site.api.espn.com` per team on load and every hour (or via the "Refresh live wins" button), then cached into the Firestore doc so every viewer benefits from the latest successful fetch, not just their own.
 - **Playoff berths / Super Bowl winner** — stored directly in the same Firestore doc, read on load and kept live via `onSnapshot`.
 
-If Firebase is unreachable or unconfigured, the page still renders fully (roster, draft board, live ESPN wins) — only the cross-device sync for playoff/SB checkboxes is unavailable, and a small banner under the standings table says so.
+If Firebase is unreachable or unconfigured, the page still renders fully (draft, roster, live ESPN wins) — only the cross-device sync is unavailable (the draft still works, just local to your own browser), and a small banner under the standings table says so.
 
 ## Local preview
 
