@@ -61,4 +61,4 @@ python3 -m http.server 8000
 
 ## Deployment
 
-A GitHub Actions workflow (`.github/workflows/pages.yml`) deploys the site to GitHub Pages on every push to `main`. In the repo settings, set **Pages → Build and deployment → Source** to **GitHub Actions**.
+GitHub Pages is set to deploy straight from the `main` branch (Settings → Pages → Build and deployment → Source: **Deploy from a branch**, branch `main`). `.nojekyll` at the repo root tells Pages to serve the files as-is instead of running them through Jekyll. Any push to `main` goes live within a minute or two — no build step, no Actions workflow needed.
